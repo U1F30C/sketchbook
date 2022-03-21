@@ -26,7 +26,7 @@ function sin(x, delta = Number.EPSILON) {
 }
 
 function cos(x, delta = Number.EPSILON) {
-  return taylorSum(x, delta, 1)
+  return taylorSum(x, delta, 0)
 }
 
 console.log(sin(1), Math.sin(1))
