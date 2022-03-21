@@ -6,9 +6,8 @@ function factorial(x) {
 function taylorSum(x, delta, starPower) {
   let sum = true;
   let current = 0;
-  let previous = x;
   let power = starPower;
-  while (Math.abs(previous - current) > delta) {
+  do {
     previous = current;
     const nextTerm = Math.pow(x, power) / factorial(power);
     if (sum)
@@ -18,6 +17,7 @@ function taylorSum(x, delta, starPower) {
     power += 2;
     sum = !sum;
   }
+  while (Math.abs(previous - current) > delta)
   return current;
 }
 
