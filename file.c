@@ -17,6 +17,11 @@ int rewindFile(int fd) {
   if (fd != -1) lseek(fd, 0L, 0);
 }
 
+int getChar(int fd) {
+    char c;
+    return (read(fd, &c, 1) == 1) ? (unsigned char)c : EOF;
+}
+
 int end(int fd) { lseek(fd, 0L, 2); }
 
 int closeFile(int fd) { close(fd); }
