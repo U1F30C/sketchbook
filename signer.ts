@@ -1,24 +1,21 @@
-import crypto from 'crypto';
-import fs from 'fs';
+import crypto from "crypto";
+import fs from "fs";
 
-export class PaymentValidationController {
-  private async verifySignature(
-    body: any,
-    signatureSignedByPrivateKey: string,
-  ) {
+export class Signer {
+  private async verifySignature(body: any, signatureOfBody: string) {
     const serializedBody = JSON.stringify(body);
 
-    let publicKeyPath = 'public.pem';
-    let pem = fs.readFileSync(publicKeyPath);
+    let pemKeyPath = "public.pem";
+    let pemKeyFileContent = fs.readFileSync(pemKeyPath);
     let publicKey = crypto.createPublicKey({
-      key: pem,
-      format: 'pem',
+      key: pemKeyFileContent,
+      format: "pem",
     });
-    const verifier = crypto.createVerify('RSA-SHA256');
+    const verifier = crypto.createVerify("RSA-SHA256");
 
-    verifier.update(serializedBody, 'utf8');
+    verifier.update(serializedBody, "utf8");
 
-    const signatureBuf = Buffer.from(signatureSignedByPrivateKey, 'base64');
+    const signatureBuf = Buffer.from(signatureOfBody, "base64");
     const signatureIsValid = verifier.verify(publicKey, signatureBuf);
 
     return signatureIsValid;
@@ -27,15 +24,15 @@ export class PaymentValidationController {
   async sign(body: any) {
     const serializedBody = JSON.stringify(body);
 
-    let privateKeyPath = 'private.pem';
-    let privatePem = fs.readFileSync(privateKeyPath);
+    let pemKeyPath = "private.pem";
+    let pemKeyFileContent = fs.readFileSync(pemKeyPath);
     let key = crypto.createPrivateKey({
-      key: privatePem,
-      format: 'pem',
+      key: pemKeyFileContent,
+      format: "pem",
     });
-    let sign = crypto.createSign('RSA-SHA256');
+    let sign = crypto.createSign("RSA-SHA256");
     sign.update(serializedBody);
-    let signature = sign.sign(key, 'base64');
+    let signature = sign.sign(key, "base64");
 
     return signature;
   }
