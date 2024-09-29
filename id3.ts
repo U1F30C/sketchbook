@@ -1,3 +1,8 @@
+// Sources:
+// https://en.wikipedia.org/wiki/ID3_algorithm
+// https://towardsdatascience.com/decision-trees-for-classification-id3-algorithm-explained-89df76e72df1
+// https://brilliant.org/wiki/entropy-information-theory/
+
 import { countBy, groupBy, minBy, maxBy } from "lodash";
 
 type Data = string[][];
