@@ -59,16 +59,16 @@ function entropyAt<KeyType>(attributeKey: KeyType, data: Data): number {
 }
 
 function mostCommon(data: string[]): string {
-    const counts = countBy(data);
-    return maxBy(Object.keys(counts), (key) => counts[key])!;
-    }
+  const counts = countBy(data);
+  return maxBy(Object.keys(counts), (key) => counts[key])!;
+}
 
 function _id3<KeyType>(
   data: Data,
-  attributes: KeyType[] = [],
+  attributes: KeyType[] = []
 ): (DecisionTreeBranch<KeyType> | DecisionTreeLeaf)[] {
   const classArray = getClassArray(data);
-  const classEntropy = entropy(classArray);   
+  const classEntropy = entropy(classArray);
 
   if (classEntropy === 0) {
     const classification = classArray[0];
@@ -87,7 +87,6 @@ function _id3<KeyType>(
       },
     ];
   }
-
 
   const entropies = attributes.map((attributeKey) => {
     return {
@@ -114,7 +113,11 @@ function _id3<KeyType>(
     return {
       propertyToCheck: minEntropy!.attributeKey,
       value: partitionKey,
-      children: _id3(childData, attributes.filter((a) => a !== minEntropy!.attributeKey)),
+      children: _id3(
+        childData,
+        attributes.filter((a) => a !== minEntropy!.attributeKey),
+        debugKey + " -> " + minEntropy!.attributeKey + "-" + partitionKey
+      ),
     } as DecisionTreeBranch<KeyType>;
   });
 
@@ -122,7 +125,9 @@ function _id3<KeyType>(
 }
 
 export function id3<KeyType>(data: Data): DecisionTreeRoot<KeyType> {
-    const attributes: KeyType[] = data[0].slice(0, -1).map((_, i) => i as KeyType);
+  const attributes: KeyType[] = data[0]
+    .slice(0, -1)
+    .map((_, i) => i as KeyType);
   return {
     children: _id3(data, attributes),
   };
