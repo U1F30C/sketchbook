@@ -114,7 +114,7 @@ function _id3<KeyType>(
     return {
       propertyToCheck: minEntropy!.attributeKey,
       value: partitionKey,
-      children: _id3(childData, attributes.filter((a) => a !== minEntropy!.attributeKey), debugKey+" -> "+minEntropy!.attributeKey+"-"+partitionKey),
+      children: _id3(childData, attributes.filter((a) => a !== minEntropy!.attributeKey)),
     } as DecisionTreeBranch<KeyType>;
   });
 
