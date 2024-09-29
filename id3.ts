@@ -3,6 +3,8 @@
 // https://towardsdatascience.com/decision-trees-for-classification-id3-algorithm-explained-89df76e72df1
 // https://brilliant.org/wiki/entropy-information-theory/
 
+// TODO: explicitly specify attribute classes and implement generalization
+
 import { countBy, groupBy, minBy, maxBy } from "lodash";
 
 type Data = string[][];
