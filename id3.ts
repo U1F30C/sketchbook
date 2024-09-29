@@ -66,12 +66,9 @@ function mostCommon(data: string[]): string {
 function _id3<KeyType>(
   data: Data,
   attributes: KeyType[] = [],
-  debugKey?: string
 ): (DecisionTreeBranch<KeyType> | DecisionTreeLeaf)[] {
   const classArray = getClassArray(data);
-  const classEntropy = entropy(classArray);
-
-  console.log("split on ", debugKey, ": ", classArray, classEntropy);    
+  const classEntropy = entropy(classArray);   
 
   if (classEntropy === 0) {
     const classification = classArray[0];
@@ -105,7 +102,6 @@ function _id3<KeyType>(
   const groupKeys = Object.keys(splitData);
   // if the attribute has no discrimination power
   if (groupKeys.length === 1) {
-    console.log("no discrimination power", minEntropy!.attributeKey, "selecting most common class from", classArray);
     return [
       {
         classification: mostCommon(classArray),
@@ -128,7 +124,7 @@ function _id3<KeyType>(
 export function id3<KeyType>(data: Data): DecisionTreeRoot<KeyType> {
     const attributes: KeyType[] = data[0].slice(0, -1).map((_, i) => i as KeyType);
   return {
-    children: _id3(data, attributes, ""),
+    children: _id3(data, attributes),
   };
 }
 
