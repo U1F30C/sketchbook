@@ -1,7 +1,7 @@
 # Using HTTP over raw TCP with netcat
 
-[https://askubuntu.com/questions/443227/sending-a-simple-tcp-message-using-netcat](Netcat)
-[https://en.wikipedia.org/wiki/HTTP](HTTP)
+[Netcat](https://askubuntu.com/questions/443227/sending-a-simple-tcp-message-using-netcat)
+([HTTP](https://en.wikipedia.org/wiki/HTTP))
 
 ## HTTP Client
 Create a minimal raw HTTP request file `request.txt`. End of line must be CLRF.
