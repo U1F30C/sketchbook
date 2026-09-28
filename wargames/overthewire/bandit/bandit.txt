@@ -1,0 +1,121 @@
+(Spoiler alert) Notes and passwords to some otw bandit problems
+00 | bandit0
+    ssh ssh://banditX@bandit.labs.overthewire.org:2220
+00->01 | <bandit1 password>
+    cat readme
+01->02 | <bandit2 password>
+    cat < -
+    cat ./-
+02->03 | <bandit3 password>
+    cat spaces\ in\ this\ filename
+    cat "spaces in this filename"
+03->04 | <bandit4 password>
+    cat inhere/.hidden
+04->05 | <bandit5 password>
+    xxd ./inhere/-file07
+    od ./inhere/-file07
+    hexdump -C ./inhere/-file07
+    cat ./inhere/-file07
+05->06 | <bandit6 password>
+    du -ba . | grep 1033
+06->07 | <bandit7 password>
+    du -ba / | grep ^33
+07->08 | <bandit8 password>
+    cat data.txt | grep millionth
+08->09 | <bandit9 password>
+    cat data.txt | sort | uniq -c
+09->10 | <bandit10 password>
+    cat data.txt | hexdump -C | grep -E -A 2 "=(\||=)"
+10->11 | <bandit11 password>
+    cat data.txt | base64 -d
+11->12 | <bandit12 password>
+    cat data.txt | tr ABCDEFGHIJKLMNOPQRSTUVWXYZ NOPQRSTUVWXYZABCDEFGHIJKLM | tr abcdefghijklmnopqrstuvwxyz nopqrstuvwxyzabcdefghijklm
+12->13 | <bandit13 password>
+    ORIGINAL_FILE_PATH=~/data.txt
+    BASE_FOLDER=/tmp/22-01-14
+    GZIP_FILE_PATH="$BASE_FOLDER/file.gzip"
+    BZIP2_FILE_PATH="$BASE_FOLDER/file.bzip2"
+    TAR_FILE_PATH="$BASE_FOLDER/file.tar"
+    cd $BASE_FOLDER
+
+    cat $ORIGINAL_FILE_PATH | xxd -r -a > $GZIP_FILE_PATH; file $GZIP_FILE_PATH;
+    gunzip -c $GZIP_FILE_PATH > $BZIP2_FILE_PATH; file $BZIP2_FILE_PATH;
+    bunzip2 -c $BZIP2_FILE_PATH > $GZIP_FILE_PATH; file $GZIP_FILE_PATH
+    gunzip -c $GZIP_FILE_PATH > $TAR_FILE_PATH; file $TAR_FILE_PATH;
+    
+    tar -xvf file.tar
+    tar -xvf data5.bin
+    tar -xvf data6.bin
+    tar -xvf data8.bin
+    gunzip -c data8.bin > txt; file txt;
+    cat txt;
+
+13->14 | <bandit14 password>
+    scp -P 2220 bandit13@bandit.labs.overthewire.org:/home/bandit13/sshkey.private sshkey.private
+    ssh -i sshkey.private ssh://bandit14@bandit.labs.overthewire.org:2220
+14->15 | <bandit15 password>
+    nc localhost 30000
+15->16 | <bandit16 password>
+    openssl s_client -crlf -connect localhost:30001
+16->17 | [CERTIFICATE]
+    nmap -p31000-32000 localhost
+    openssl s_client -crlf -connect localhost:31790
+17->18 | <bandit18 password>
+    diff passwords.old passwords.new
+18->19 | <bandit19 password>
+    ssh  ssh://bandit18@bandit.labs.overthewire.org:2220 "cat readme"
+19->20 | <bandit20 password>
+    ./bandit20-do cat /etc/bandit_pass/bandit20
+20->21 | <bandit21 password>
+    tmux
+    nc -l -p 8080
+    Ctrl+b d
+    # nc localhost 8080
+    ./suconnect 8080
+    Ctrl+z
+    tmux attach
+    <enter password>
+    Ctrl+b d
+    fg
+    tmux attach
+
+21->22 | <bandit22 password>
+    cat /etc/cron.d/cronjob_bandit22
+    cat /usr/bin/cronjob_bandit22.sh
+    cat /tmp/t7O6lds9S0RqQh9aMcz6ShpAoZKF7fgv
+22->23 | <bandit23 password>
+    cat /etc/cron.d/cronjob_bandit23
+    cat /usr/bin/cronjob_bandit23.sh
+    cat /tmp/`echo I am user bandit23 | md5sum | cut -d ' ' -f 1`
+    cat /tmp/`echo I am user bandit24 | md5sum | cut -d ' ' -f 1` #lvl24 2x1
+23->24 | <bandit24 password>
+    ---
+24->25 | <bandit25 password>
+    seq -f "<bandit24 password> %04g" 1 99 | nc localhost 30002
+25->26 | <bandit26 password>
+    https://medium.com/@coturnix97/overthewires-bandit-25-26-shell-355d78fd2f4d
+    make the terminal really small, upen vim using more
+    :e /etc/bandit_pass/bandit26
+    :set shell=/bin/bash
+    :shell
+26->27 | <bandit27 password>
+    # continues from 26
+    ./bandit27-do cat /etc/bandit_pass/bandit27
+27->28 <bandit28 password>
+    cd /tmp/
+    mkdir lol
+    cd lol
+    git show
+28->29 | <bandit29 password>
+    git log -p
+29->30 | <bandit30 password>
+    git log -p origin/dev
+30->31 | <bandit31 password>
+    git tag
+    git show secret
+31->32 | <bandit32 password>
+    echo "May I come in?\n" > key.txt; git add -f key.txt; git push -m "key"
+32->33 | <bandit32 password>
+    $0
+    cat /etc/bandit_pass/bandit33
+33->34 | <bandit34 password>

