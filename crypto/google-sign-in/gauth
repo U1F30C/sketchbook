@@ -1,0 +1,44 @@
+<html>
+
+<head>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <meta name="google-signin-client_id" content="<id>.apps.googleusercontent.com">
+    <script>
+        function Google_signIn(googleUser) {
+            
+            console.log('Data');
+            console.log(googleUser);
+            var profile = googleUser.getBasicProfile();
+            console.log('ID: ' + profile.getId());
+            console.log('Name: ' + profile.getName());
+            console.log('Image URL: ' + profile.getImageUrl());
+            console.log('Email: ' + profile.getEmail());
+    
+            // sessionStorage.setItem("loggedUser", profile.getEmail().toString());
+            console.log("loggedUser", profile.getEmail().toString());
+            // document.location.href = 'home.html';
+        }
+    </script>
+</head>
+
+<body>
+
+    <div class="g-signin2" data-onsuccess="Google_signIn"></div>
+</body>
+
+</html>
+
+
+import { OAuth2Client } from 'google-auth-library';
+private async verifyGoogleTokenGetPayload(
+  idToken: string,
+){
+  const clientId = appConfig.get('GOOGLE_CLIENT_ID');
+  const client = new OAuth2Client(clientId);
+  const ticket = await client.verifyIdToken({
+    idToken: idToken,
+    audience: clientId,
+  });
+  const payload = ticket.getPayload();
+  return payload;
+}
