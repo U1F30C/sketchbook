@@ -47,6 +47,7 @@ Each folder has an `ORIGIN.md` with its original creation date and source.
 |---|---|---|
 | [numerical-approximations](math/numerical-approximations) | 2022-03-20 | sin, cos, and nroot numerical approximations in js |
 | [optimization-test-functions](math/optimization-test-functions) | 2020-10-05 | Python code to plot some test functions for optimization |
+| [orbit-3d](math/orbit-3d) | 2026-11-08 | A ship and a moon orbiting a planet, drawn by a from-scratch 3D renderer in a single HTML file (no libraries) |
 | [pi-calculation](math/pi-calculation) | 2024-02-06 | PI calculation |
 
 ## ml
