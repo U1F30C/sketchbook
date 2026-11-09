@@ -51,8 +51,13 @@ body.ui-open #ui{display:flex}
 #sbs img{width:100%;height:100%;object-fit:cover;display:block}
 #stage{position:relative;height:min(100cqh,calc(100cqw*4/3));aspect-ratio:3/4;overflow:hidden;background:#000;touch-action:none}
 #stage img,#stage canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-#empty{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:12px;padding:24px;color:var(--mut)}
-#empty button{justify-self:center}
+body.empty #sbs,body.empty #stage{display:none!important}
+#empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;padding:24px max(24px,env(safe-area-inset-right)) 24px max(24px,env(safe-area-inset-left));color:var(--mut)}
+#empty .ph-row{display:flex;gap:6px}
+#empty .ph{height:min(calc(100cqh*.36),calc((min(100cqw,520px) - 54px)/2*4/3),240px);aspect-ratio:3/4;border:2px dashed var(--line);border-radius:var(--r);display:grid;place-content:center;justify-items:center;gap:6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+#empty .ph svg{width:28px;height:28px;opacity:.6}
+#emsg{max-width:min(46ch,100%);text-wrap:balance}
+#empty .or{font-size:12px}
 #drop{position:absolute;inset:8px;border:2px dashed var(--acc);border-radius:12px;display:grid;place-content:center;background:#000a;font-size:18px;z-index:20;pointer-events:none}
 </style></head>
 <body class="">
@@ -98,7 +103,15 @@ body.ui-open #ui{display:flex}
     <button id="menu" aria-label="Toggle controls" title="Controls">☰</button>
     <div id="sbs"><div class="w" id="wL"><img id="iL"></div><div class="w" id="wR"><img id="iR"></div></div>
     <div id="stage" class="hide"><img id="sa"><img id="sb"><canvas id="cv" class="hide"></canvas></div>
-    <div id="empty" class="hide"><div id="emsg">No photos loaded.</div><button class="pri" id="load2">Load two photos…</button><div>or drop them here</div></div>
+    <div id="empty" class="hide">
+      <div class="ph-row" aria-hidden="true">
+        <div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M3 17l5-4 4 3 3-2 6 4"/></svg>Left</div>
+        <div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M3 17l5-4 4 3 3-2 6 4"/></svg>Right</div>
+      </div>
+      <div id="emsg">No photos loaded.</div>
+      <button class="pri" id="load2">Load two photos…</button>
+      <div class="or">or drop them here</div>
+    </div>
   </main>
 </div>
 <div id="drop" class="hide">Drop two photos</div>
@@ -241,12 +254,14 @@ $('auto').onclick=autoAlign;
 const imgs={a:[$('iL'),A],b:[$('iR'),B]};
 const ld=(img,u)=>new Promise((res,rej)=>{img.onload=res;img.onerror=()=>rej(new Error('load'));img.src=u});
 async function openImages(ua,ub){
-  $('empty').classList.add('hide');camRight=true;resetTf();$('st').textContent='';
+  $('empty').classList.add('hide');document.body.classList.remove('empty');camRight=true;resetTf();$('st').textContent='';
   try{
     await Promise.all([...imgs.a.map(i=>ld(i,ua)),...imgs.b.map(i=>ld(i,ub))]);
   }catch(e){
-    $('emsg').textContent="Couldn't load the photos. Browsers can't show HEIC (except Safari) — convert to JPG, or pick other files.";
-    $('empty').classList.remove('hide');return;
+    $('emsg').textContent=ua.startsWith('blob:')
+      ?"Couldn't open those photos. Browsers can't show HEIC (except Safari), so convert to JPG or pick other files."
+      :"No photos yet. Put a.jpg and b.jpg next to this page, or load two photos of the same scene taken a few centimetres apart.";
+    document.body.classList.add('empty');$('empty').classList.remove('hide');return;
   }
   setMode(mode);autoAlign();
 }
