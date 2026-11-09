@@ -4,7 +4,7 @@ A single-file HTML viewer for a pair of slightly offset photos. It's built for
 **cross-eye (or parallel) viewing**, and it can also wiggle, slide or make an
 anaglyph. No libraries, no build step.
 
-Inspired by [xkcd 941: Cross-Eyed Stereograms](https://xkcd.com/941/).
+Inspired by [xkcd 941: Depth Perception](https://xkcd.com/941/).
 
 ## Run it
 
