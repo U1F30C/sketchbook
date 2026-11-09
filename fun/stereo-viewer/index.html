@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Stereo Viewer</title>
+<style>
+:root{--bg:#0e0e10;--panel:#17171a;--line:#2b2b31;--fg:#ececf1;--mut:#9a9aa6;--acc:#ffb347;--r:8px}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font:14px/1.4 system-ui,sans-serif;overflow:hidden}
+button{font:inherit;color:var(--fg);background:#25252b;border:1px solid var(--line);border-radius:var(--r);padding:7px 12px;cursor:pointer}
+button:hover{background:#2f2f37}
+button.pri{background:var(--acc);border-color:var(--acc);color:#111;font-weight:600}
+.hide{display:none!important}
+
+#app{display:flex;height:100dvh;width:100%}
+#view{flex:1;min-width:0;container-type:size;display:grid;place-items:center;position:relative}
+
+/* panel */
+#ui{width:276px;flex:none;background:var(--panel);border-right:1px solid var(--line);padding:16px;overflow:auto;display:none;flex-direction:column;gap:16px}
+body.ui-open #ui{display:flex}
+#ui h1{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 0 6px;font-weight:600}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.seg button.on{background:var(--acc);border-color:var(--acc);color:#111;font-weight:600}
+.sl{display:grid;grid-template-columns:54px 1fr;gap:8px;align-items:center;color:var(--mut);margin:6px 0}
+.sl input{width:100%;accent-color:var(--acc)}
+.chk{display:flex;gap:8px;align-items:center;color:var(--fg);margin:8px 0}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+#hint,#st{color:var(--mut);font-size:12px;margin:8px 0 0}
+#st{color:var(--acc)}
+
+#menu{position:absolute;top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right));z-index:10;width:40px;height:40px;padding:0;font-size:18px;background:rgba(30,30,36,.85);backdrop-filter:blur(6px)}
+
+/* overlay mode: narrow or short screens (e.g. phone landscape) */
+@media (max-width:899px),(max-height:520px){
+  #app{display:block;position:relative}
+  #view{position:absolute;inset:0}
+  #ui{position:absolute;z-index:5;left:0;top:0;bottom:0;max-width:min(300px,85vw);background:rgba(23,23,26,.95);backdrop-filter:blur(8px);padding-left:max(16px,env(safe-area-inset-left));box-shadow:0 0 30px #000a}
+  #hint{display:none}
+}
+@media (max-height:520px) and (min-width:600px){
+  #ui{max-width:min(600px,92vw);width:min(600px,92vw);flex-direction:row;flex-wrap:wrap;align-content:flex-start;gap:12px 20px;padding-top:12px}
+  #ui section{flex:1 1 250px}
+}
+
+/* viewer — sizes in container units so it adapts to whatever space is left */
+#sbs{display:flex;gap:6px;align-items:center;justify-content:center}
+#sbs .w{height:min(calc(100cqh*var(--sz,.45)),calc((100cqw - 6px)/2*4/3));aspect-ratio:3/4;flex:none;overflow:hidden;background:#000}
+#sbs img{width:100%;height:100%;object-fit:cover;display:block}
+#stage{position:relative;height:min(100cqh,calc(100cqw*4/3));aspect-ratio:3/4;overflow:hidden;background:#000;touch-action:none}
+#stage img,#stage canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#empty{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:12px;padding:24px;color:var(--mut)}
+#empty button{justify-self:center}
+#drop{position:absolute;inset:8px;border:2px dashed var(--acc);border-radius:12px;display:grid;place-content:center;background:#000a;font-size:18px;z-index:20;pointer-events:none}
+</style></head>
+<body class="">
+<div id="app">
+  <aside id="ui">
+    <section>
+      <h1>Mode</h1>
+      <div class="seg" id="tabs">
+        <button data-m="sbs" class="on">Side by side</button>
+        <button data-m="wiggle">Wiggle</button>
+        <button data-m="mouse">Slide</button>
+        <button data-m="ana">Anaglyph</button>
+      </div>
+      <p id="hint"></p>
+    </section>
+
+    <section>
+      <h1>View</h1>
+      <label class="sl" data-modes="sbs"><span>Size</span><input type="range" id="sz" min="15" max="100" value="45"></label>
+      <label class="sl" data-modes="wiggle"><span>Speed</span><input type="range" id="sp" min="2" max="14" value="6"></label>
+      <label class="chk" data-modes="sbs"><input type="checkbox" id="swap"> Flip left/right order</label>
+    </section>
+
+    <section>
+      <h1>Alignment</h1>
+      <label class="sl"><span>X</span><input type="range" id="dx" min="-200" max="200" value="0"></label>
+      <label class="sl"><span>Y</span><input type="range" id="dy" min="-200" max="200" value="0"></label>
+      <label class="sl"><span>Zoom</span><input type="range" id="sc" min="80" max="130" value="100"></label>
+      <label class="sl"><span>Rotate</span><input type="range" id="rt" min="-100" max="100" value="0"></label>
+      <div class="row"><button class="pri" id="auto">Auto-align</button><button id="reset">Reset</button></div>
+      <p id="st"></p>
+    </section>
+
+    <section>
+      <h1>Photos</h1>
+      <div class="row"><button id="load">Load two photos…</button></div>
+      <input type="file" id="file" accept="image/*,.heic,.heif" multiple hidden>
+    </section>
+  </aside>
+
+  <main id="view">
+    <button id="menu" aria-label="Toggle controls" title="Controls">☰</button>
+    <div id="sbs"><div class="w" id="wL"><img id="iL"></div><div class="w" id="wR"><img id="iR"></div></div>
+    <div id="stage" class="hide"><img id="sa"><img id="sb"><canvas id="cv" class="hide"></canvas></div>
+    <div id="empty" class="hide"><div id="emsg">No photos loaded.</div><button class="pri" id="load2">Load two photos…</button><div>or drop them here</div></div>
+  </main>
+</div>
+<div id="drop" class="hide">Drop two photos</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const A=$('sa'),B=$('sb'),cv=$('cv'),ctx=cv.getContext('2d',{willReadFrequently:true});
+const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:v}catch(e){return d}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const overlay=matchMedia('(max-width:899px),(max-height:520px)');
+const q=new URLSearchParams(location.search);
+const DEFAULTS={a:q.get('a')||'a.jpg',b:q.get('b')||'b.jpg'};
+const HINTS={
+  sbs:'Cross your eyes (or relax them for parallel) until the two images merge into one.',
+  wiggle:'Flips between the two views; the motion reveals depth.',
+  mouse:'Drag or move across the image to slide between the two viewpoints.',
+  ana:'For red/cyan 3D glasses (red over the left eye).'};
+let mode='sbs',raf=0,camRight=true,blobs=[];
+
+/* ---------- UI shell ---------- */
+function setUI(open){document.body.classList.toggle('ui-open',open)}
+$('menu').onclick=()=>setUI(!document.body.classList.contains('ui-open'));
+$('view').addEventListener('pointerdown',e=>{if(overlay.matches&&e.target!==$('menu')&&mode!=='mouse')setUI(false)});
+setUI(!overlay.matches);
+overlay.addEventListener('change',()=>setUI(!overlay.matches));
+
+function setSize(){document.documentElement.style.setProperty('--sz',$('sz').value/100)}
+$('sz').value=store.get('sz',overlay.matches?60:45);setSize();
+$('sz').oninput=()=>{setSize();store.set('sz',$('sz').value)};
+
+/* ---------- modes ---------- */
+function setMode(m){
+  mode=m;cancelAnimationFrame(raf);
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+  document.querySelectorAll('[data-modes]').forEach(el=>el.classList.toggle('hide',!el.dataset.modes.split(' ').includes(m)));
+  $('sbs').classList.toggle('hide',m!=='sbs');
+  $('stage').classList.toggle('hide',m==='sbs');
+  cv.classList.toggle('hide',m!=='ana');
+  A.classList.toggle('hide',m==='ana');B.classList.toggle('hide',m==='ana');
+  $('hint').textContent=HINTS[m];
+  B.style.opacity=m==='mouse'?0:1;
+  if(m==='wiggle')loop();
+  if(m==='ana')drawAna();
+}
+function loop(t=0){B.style.opacity=(Math.floor(t/1000*$('sp').value)%2)?1:0;raf=requestAnimationFrame(loop)}
+function slide(x){if(mode!=='mouse')return;const r=$('stage').getBoundingClientRect();B.style.opacity=Math.min(1,Math.max(0,(x-r.left)/r.width))}
+$('stage').addEventListener('pointermove',e=>slide(e.clientX));
+$('stage').addEventListener('pointerdown',e=>slide(e.clientX));
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>setMode(b.dataset.m));
+
+/* ---------- alignment transform (applied to photo B) ---------- */
+function tf(){return `translate(${$('dx').value/10}%,${$('dy').value/10}%) scale(${$('sc').value/100}) rotate(${$('rt').value/20}deg)`}
+function applyTf(){B.style.transform=tf();$('iR').style.transform=tf();if(mode==='ana')drawAna()}
+['dx','dy','sc','rt'].forEach(i=>$(i).oninput=applyTf);
+function resetTf(){[['dx',0],['dy',0],['sc',100],['rt',0]].forEach(([i,v])=>$(i).value=v);applyTf()}
+$('reset').onclick=resetTf;
+
+function doSwap(){ // which photo goes on the left
+  const s=$('sbs'),l=$('wL'),r=$('wR'),bLeft=($('swap').checked===camRight);
+  s.insertBefore(bLeft?r:l,bLeft?l:r);
+}
+$('swap').checked=store.get('flip','0')==='1';
+$('swap').onchange=()=>{store.set('flip',$('swap').checked?'1':'0');doSwap()};
+
+function drawAna(){
+  try{
+    const w=cv.width=900,h=cv.height=1200,o=document.createElement('canvas');o.width=w;o.height=h;const c=o.getContext('2d');
+    const cover=(c2,img,t)=>{c2.save();c2.translate(w/2,h/2);
+      if(t){c2.translate($('dx').value/1000*w,$('dy').value/1000*h);c2.scale($('sc').value/100,$('sc').value/100);c2.rotate($('rt').value/20*Math.PI/180)}
+      const s=Math.max(w/img.naturalWidth,h/img.naturalHeight);
+      c2.drawImage(img,-img.naturalWidth*s/2,-img.naturalHeight*s/2,img.naturalWidth*s,img.naturalHeight*s);c2.restore()};
+    cover(ctx,A,false);const L=ctx.getImageData(0,0,w,h);
+    c.fillStyle='#000';c.fillRect(0,0,w,h);cover(c,B,true);const R=c.getImageData(0,0,w,h);
+    for(let i=0;i<L.data.length;i+=4){L.data[i+1]=R.data[i+1];L.data[i+2]=R.data[i+2]}
+    ctx.putImageData(L,0,0);
+  }catch(e){$('st').textContent='Anaglyph needs pixel access (serve over http).'}
+}
+
+/* ---------- auto-align ---------- */
+const W=120,H=160;
+function grayOf(img){
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  x.drawImage(img,0,0,W,H);const d=x.getImageData(0,0,W,H).data,g=new Float32Array(W*H);
+  for(let i=0;i<W*H;i++)g[i]=.299*d[4*i]+.587*d[4*i+1]+.114*d[4*i+2];
+  return highpass(g);
+}
+function box(src,r){
+  const t=new Float32Array(W*H),o=new Float32Array(W*H);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){let a=0,n=0;for(let k=-r;k<=r;k++){const xx=x+k;if(xx>=0&&xx<W){a+=src[y*W+xx];n++}}t[y*W+x]=a/n}
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){let a=0,n=0;for(let k=-r;k<=r;k++){const yy=y+k;if(yy>=0&&yy<H){a+=t[yy*W+x];n++}}o[y*W+x]=a/n}
+  return o;
+}
+function highpass(g){const a=box(g,1),b=box(g,8),o=new Float32Array(W*H);for(let i=0;i<o.length;i++)o[i]=a[i]-b[i];return o}
+function ncc(GA,GB,dx,dy,sc,rt,st,ya=2,yb=H-2){
+  const tx=dx/1000*W,ty=dy/1000*H,s=sc/100,th=rt/20*Math.PI/180,co=Math.cos(th),si=Math.sin(th);
+  let n=0,sa=0,sb=0,saa=0,sbb=0,sab=0;
+  for(let y=ya;y<yb;y+=st)for(let x=2;x<W-2;x+=st){
+    const qx=(x-W/2-tx)/s,qy=(y-H/2-ty)/s,bx=co*qx+si*qy+W/2,by=-si*qx+co*qy+H/2;
+    if(bx<1||by<1||bx>=W-2||by>=H-2)continue;
+    const x0=bx|0,y0=by|0,fx=bx-x0,fy=by-y0,i=y0*W+x0;
+    const b=GB[i]*(1-fx)*(1-fy)+GB[i+1]*fx*(1-fy)+GB[i+W]*(1-fx)*fy+GB[i+W+1]*fx*fy,a=GA[y*W+x];
+    n++;sa+=a;sb+=b;saa+=a*a;sbb+=b*b;sab+=a*b;
+  }
+  if(n<(yb-ya)*(W-4)/(st*st)*.5)return -1;
+  return (sab-sa*sb/n)/Math.sqrt((saa-sa*sa/n)*(sbb-sb*sb/n)+1e-9);
+}
+async function autoAlign(){
+  const T0=performance.now();$('st').textContent='Aligning…';await new Promise(r=>setTimeout(r,30));
+  let GA,GB;
+  try{GA=grayOf(A);GB=grayOf(B)}catch(e){$('st').textContent='Auto-align needs http (file:// blocks pixel access).';return}
+  const R={dx:[-200,200],dy:[-200,200],sc:[80,130],rt:[-100,100]};
+  const cands=[];
+  for(let dx=-200;dx<=200;dx+=20)for(let dy=-200;dy<=200;dy+=20)cands.push([ncc(GA,GB,dx,dy,100,0,3),{dx,dy,sc:100,rt:0}]);
+  cands.sort((a,b)=>b[0]-a[0]);
+  let best=[-2,null];
+  for(const [,p0] of cands.slice(0,2)){
+    let p={...p0},sc=ncc(GA,GB,p.dx,p.dy,p.sc,p.rt,2);
+    for(const step of [8,4,2,1]){
+      await new Promise(r=>setTimeout(r,0));
+      let imp=true,it=0;
+      while(imp&&it++<12){imp=false;
+        for(const [k,m] of [['dx',step],['dy',step],['sc',step/2],['rt',step]])for(const sg of [-1,1]){
+          const qq={...p};qq[k]=Math.min(R[k][1],Math.max(R[k][0],qq[k]+sg*m));
+          const v=ncc(GA,GB,qq.dx,qq.dy,qq.sc,qq.rt,2);if(v>sc+1e-5){sc=v;p=qq;imp=true}
+        }}
+    }
+    if(sc>best[0])best=[sc,p];
+  }
+  const p=best[1];for(const k in p)$(k).value=Math.round(p[k]);
+  // which photo is the right-hand view? near (lower) content shifts further than far (upper) content
+  const band=(ya,yb)=>{let b=-9,bv=-9;for(let d=-125;d<=125;d+=4){const v=ncc(GA,GB,p.dx+d,p.dy,p.sc,p.rt,1,ya,yb);if(v>bv){bv=v;b=d}}return b};
+  const diff=band(H*.6|0,H*.95|0)-band(H*.2|0,H*.5|0);
+  let msg='';
+  if(Math.abs(diff)>=8){camRight=diff>0;msg=' · photo B is the '+(camRight?'right':'left')+' view'}else msg=' · order unclear';
+  doSwap();applyTf();
+  $('st').textContent='Match '+best[0].toFixed(2)+msg+' ('+Math.round(performance.now()-T0)+' ms)';
+}
+$('auto').onclick=autoAlign;
+
+/* ---------- loading photos ---------- */
+const imgs={a:[$('iL'),A],b:[$('iR'),B]};
+const ld=(img,u)=>new Promise((res,rej)=>{img.onload=res;img.onerror=()=>rej(new Error('load'));img.src=u});
+async function openImages(ua,ub){
+  $('empty').classList.add('hide');camRight=true;resetTf();$('st').textContent='';
+  try{
+    await Promise.all([...imgs.a.map(i=>ld(i,ua)),...imgs.b.map(i=>ld(i,ub))]);
+  }catch(e){
+    $('emsg').textContent="Couldn't load the photos. Browsers can't show HEIC (except Safari) — convert to JPG, or pick other files.";
+    $('empty').classList.remove('hide');return;
+  }
+  setMode(mode);autoAlign();
+}
+function takeFiles(list){
+  const f=[...list].filter(x=>x.type.startsWith('image/')||/\.(heic|heif|jpe?g|png|webp|avif)$/i.test(x.name))
+    .sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true})).slice(0,2);
+  if(f.length<2){$('st').textContent='Pick two photos at once.';return}
+  blobs.forEach(u=>URL.revokeObjectURL(u));blobs=f.map(x=>URL.createObjectURL(x));
+  openImages(blobs[0],blobs[1]);
+  if(overlay.matches)setUI(false);
+}
+$('load').onclick=$('load2').onclick=()=>$('file').click();
+$('file').onchange=e=>{takeFiles(e.target.files);e.target.value=''};
+let dragN=0;
+addEventListener('dragenter',e=>{e.preventDefault();dragN++;$('drop').classList.remove('hide')});
+addEventListener('dragleave',()=>{if(--dragN<=0){dragN=0;$('drop').classList.add('hide')}});
+addEventListener('dragover',e=>e.preventDefault());
+addEventListener('drop',e=>{e.preventDefault();dragN=0;$('drop').classList.add('hide');takeFiles(e.dataTransfer.files)});
+
+setMode('sbs');doSwap();
+openImages(DEFAULTS.a,DEFAULTS.b);
+</script></body></html>

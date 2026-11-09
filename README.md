@@ -27,6 +27,7 @@ Each folder has an `ORIGIN.md` with its original creation date and source.
 | [bf-print-generator](fun/bf-print-generator) | 2022-02-19 | generates a bf program tha prints output |
 | [fizzbuzz-befunge](fun/fizzbuzz-befunge) | 2022-03-11 | Fizzbuzz implemented in befunge esolang |
 | [fizzbuzz-lolcode](fun/fizzbuzz-lolcode) | 2022-03-11 | Fizzbuzz algorithm implemented in LOLCODE esolang |
+| [stereo-viewer](fun/stereo-viewer) | 2026-11-09 | Single-file stereo photo-pair viewer: cross-eye side by side, wiggle, slide and anaglyph, with auto-align |
 | [terminal-snake](fun/terminal-snake) | 2022-01-25 | snake for terminal on nodejs... kinda |
 
 ## languages
