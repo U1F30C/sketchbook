@@ -260,7 +260,7 @@ async function openImages(ua,ub){
   }catch(e){
     $('emsg').textContent=ua.startsWith('blob:')
       ?"Couldn't open those photos. Browsers can't show HEIC (except Safari), so convert to JPG or pick other files."
-      :"No photos yet. Put a.jpg and b.jpg next to this page, or load two photos of the same scene taken a few centimetres apart.";
+      :"No photos yet. Put a.jpg and b.jpg next to this page, or load two photos of the same scene taken a few centimetres apart. HEIC only works in Safari, so convert to JPG elsewhere.";
     document.body.classList.add('empty');$('empty').classList.remove('hide');return;
   }
   setMode(mode);autoAlign();
