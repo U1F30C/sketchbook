@@ -27,6 +27,9 @@ body.ui-open #ui{display:flex}
 .row{display:flex;gap:6px;flex-wrap:wrap}
 #hint,#st{color:var(--mut);font-size:12px;margin:8px 0 0}
 #st{color:var(--acc)}
+#by{color:var(--mut);font-size:12px;margin:14px 0 0}
+#by a{color:var(--mut);text-underline-offset:2px}
+#by a:hover{color:var(--fg)}
 
 #menu{position:absolute;top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right));z-index:10;width:40px;height:40px;padding:0;font-size:18px;background:rgba(30,30,36,.85);backdrop-filter:blur(6px)}
 
@@ -87,6 +90,7 @@ body.ui-open #ui{display:flex}
       <h1>Photos</h1>
       <div class="row"><button id="load">Load two photos…</button></div>
       <input type="file" id="file" accept="image/*,.heic,.heif" multiple hidden>
+      <p id="by">by <a href="https://github.com/U1F30C" target="_blank" rel="noopener">U1F30C</a> on GitHub</p>
     </section>
   </aside>
 
