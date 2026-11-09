@@ -13,7 +13,7 @@ serve the folder over http:
 
 ```sh
 cd fun/stereo-viewer
-python3 -m http.server 8000   # then open http://localhost:8000
+npx http-server -p 8000   # then open http://localhost:8000
 ```
 
 The page shows `a.jpg` and `b.jpg` from its own folder (they aren't committed).
